@@ -9,11 +9,12 @@ import (
 	"net/http"
 
 	types "github.com/araza95/learn0x-GO/internal/models"
+	"github.com/araza95/learn0x-GO/internal/storage"
 	"github.com/araza95/learn0x-GO/internal/utils/response"
 	"github.com/go-playground/validator/v10"
 )
 
-func New() http.HandlerFunc {
+func New(storage storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var students types.Student
 
@@ -38,6 +39,14 @@ func New() http.HandlerFunc {
 			return
 		}
 
-		response.WriteJson(w, http.StatusCreated, map[string]string{"success": "OK"})
+		id, err := storage.CreateStudent(students.Name, students.Email, students.Age)
+
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+		}
+
+		slog.Info("user created successfully", id)
+
+		response.WriteJson(w, http.StatusCreated, map[string]int64{"ID": id})
 	}
 }

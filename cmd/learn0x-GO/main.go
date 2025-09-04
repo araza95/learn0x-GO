@@ -12,15 +12,25 @@ import (
 
 	"github.com/araza95/learn0x-GO/internal/config"
 	"github.com/araza95/learn0x-GO/internal/http/handlers/student"
+	"github.com/araza95/learn0x-GO/internal/storage/sqlite"
 )
 
 func main() {
 	// load config
 	cfg := config.MustLoad()
+
 	// database config
+	storage, err := sqlite.New(cfg)
+	if err != nil {
+		slog.Error("Database not connected!")
+		log.Fatal(err)
+	}
+
+	slog.Info("Database connected...", slog.String("env", cfg.Env))
+
 	// setup router
 	router := http.NewServeMux()
-	router.HandleFunc("POST /api/students", student.New())
+	router.HandleFunc("POST /api/students", student.New(storage))
 	// setup server
 	server := http.Server{
 		Addr:    cfg.Address,
