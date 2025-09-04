@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/araza95/learn0x-GO/internal/config"
+	"github.com/araza95/learn0x-GO/internal/http/handlers/student"
 )
 
 func main() {
@@ -19,9 +20,7 @@ func main() {
 	// database config
 	// setup router
 	router := http.NewServeMux()
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Welcome to GO!"))
-	})
+	router.HandleFunc("POST /api/students", student.New())
 	// setup server
 	server := http.Server{
 		Addr:    cfg.Address,
