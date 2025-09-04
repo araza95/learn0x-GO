@@ -10,6 +10,7 @@ import (
 
 	types "github.com/araza95/learn0x-GO/internal/models"
 	"github.com/araza95/learn0x-GO/internal/utils/response"
+	"github.com/go-playground/validator/v10"
 )
 
 func New() http.HandlerFunc {
@@ -31,6 +32,12 @@ func New() http.HandlerFunc {
 		}
 
 		// Validate the request
+		if err := validator.New().Struct(students); err != nil {
+			validateErrs := err.(validator.ValidationErrors)
+			response.WriteJson(w, http.StatusBadRequest, response.ValidationError(validateErrs))
+			return
+		}
+
 		response.WriteJson(w, http.StatusCreated, map[string]string{"success": "OK"})
 	}
 }
