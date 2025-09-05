@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	types "github.com/araza95/learn0x-GO/internal/models"
 	"github.com/araza95/learn0x-GO/internal/storage"
@@ -45,8 +46,37 @@ func New(storage storage.Storage) http.HandlerFunc {
 			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
 		}
 
-		slog.Info("user created successfully", id)
+		slog.Info("user created successfully")
 
 		response.WriteJson(w, http.StatusCreated, map[string]int64{"ID": id})
 	}
+}
+
+func GetById(storage storage.Storage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		var id = (r.PathValue("id"))
+
+		fmt.Printf("this is query %s", id)
+
+		studentId, err := strconv.ParseInt(id, 10, 64)
+
+		if err != nil {
+			response.WriteJson(w, http.StatusNotAcceptable, response.GeneralError(err))
+			return
+		}
+
+		student, err := storage.GetStudentById((studentId))
+
+		if err != nil {
+			response.WriteJson(w, http.StatusInternalServerError, response.GeneralError(err))
+			return
+		}
+
+		slog.Info("user found")
+
+		response.WriteJson(w, http.StatusOK, student)
+
+	}
+
 }
